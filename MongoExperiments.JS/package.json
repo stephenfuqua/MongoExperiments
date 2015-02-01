@@ -1,0 +1,15 @@
+{
+  "name": "MongoExperiments.JS",
+  "version": "0.0.0",
+  "description": "MongoExperiments.JS",
+  "main": "app.js",
+  "author": {
+    "name": "stephen",
+    "email": ""
+  },
+  "dependencies": {
+    "mongodb": "^2.0.7",
+    "mongoose": "^3.8.22",
+    "paktc": "^1.0.1"
+  }
+}
