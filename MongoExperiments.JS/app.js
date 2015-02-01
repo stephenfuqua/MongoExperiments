@@ -5,45 +5,60 @@ var url = "mongodb://localhost/IbaMonitoring";
 client.connect(url, function (err, db) {
     if (err) { console.log("Error while connecting: " + err); return; }
     
+    var closeDbCallback = CloseTheDatabase(db);
+    
     var surveySite = InitializeFirstSite();
     var surveySite2 = InitializeSecondSite();
     var surveys = [surveySite, surveySite2];
     
     var collection = db.collection("SurveySite");
     
-    //ClearAnyExistingRecords
-    console.log("ClearAnyExistingRecords");
-    collection.deleteMany({}, function (err) {
-        if (err) { console.log("ClearAnyExistingRecords: " + err); db.close(); return; }
-        
-        //InsertRecords
-        console.log("InsertRecords");
-        collection.insertMany(surveys, function (err) {
-            if (err) { console.log("InsertRecords: " + err); db.close(); return; }
-            
-            //RetrieveTheSavedRecords
-            console.log("RetrieveTheSavedRecords");
-
-            collection.find().toArray(function (err, results) {
-                if (err) { console.log("RetrieveTheSavedRecords: " + err); db.close(); return; }
-                
-                console.log("result count: " + results.length);
-                
-                results.forEach(function (x) {
-                    console.log(x);
-                });
-                
-                console.log("Closing the database connection");
-                db.close();
-            })
-            
-        });
-    });
+    ClearAnyExistingRecords(collection, surveys, closeDbCallback);
 });
 
 require('paktc'); // PressAnyKeyToContinue
 
+var ClearAnyExistingRecords = function (collection, surveys, finalCallback) {
+    collection.deleteMany({}, function (err) {
+        if (err) { console.log("ClearAnyExistingRecords: " + err); db.close(); return; }
+        
+        InsertRecords(collection, surveys, finalCallback);
+    });
+}
 
+var InsertRecords = function (collection, surveys, finalCallback) {
+    collection.insertMany(surveys, function (err) {
+        if (err) { console.log("InsertRecords: " + err); db.close(); return; }
+        
+        RetrieveTheSavedRecords(collection, finalCallback);
+    });
+}
+
+var RetrieveTheSavedRecords = function (collection, finalCallback) {
+
+    collection.find().toArray(function (err, results) {
+        if (err) { console.log("RetrieveTheSavedRecords: " + err); db.close(); return; }
+
+        WriteOutTheRecords(results, finalCallback);
+    });
+}
+
+
+var WriteOutTheRecords = function (results, finalCallback) {
+    
+    results.forEach(function (x) {
+        console.log(x);
+    });
+    
+    finalCallback();
+}
+
+var CloseTheDatabase = function (db) {
+    return function () {
+        console.log("Closing the database connection");
+        db.close();
+    }
+}
 
 var InitializeFirstSite = function () {
     return {
