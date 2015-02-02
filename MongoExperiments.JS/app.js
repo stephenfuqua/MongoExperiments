@@ -5,7 +5,6 @@ var url = "mongodb://localhost/IbaMonitoring";
 client.connect(url, function (err, db) {
     if (err) { console.log("Error while connecting: " + err); return; }
     
-    var closeDbCallback = CloseTheDatabase(db);
     
     var surveySite = InitializeFirstSite();
     var surveySite2 = InitializeSecondSite();
@@ -13,44 +12,55 @@ client.connect(url, function (err, db) {
     
     var collection = db.collection("SurveySite");
     
-    ClearAnyExistingRecords(collection, surveys, closeDbCallback);
+    // Read these next 4 lines in reverse order to understand the flow of the callbacks
+    var closeDbCallback = CloseTheDatabase(db);
+    var retrieveAndPrintRecordsCall = RetrieveTheSavedRecords(collection, closeDbCallback);
+    var insertRecordsCall = InsertRecords(collection, surveys, retrieveAndPrintRecordsCall);
+    var startTheProcess = ClearAnyExistingRecords(collection, surveys, insertRecordsCall);
+    
+    startTheProcess();
 });
 
 require('paktc'); // PressAnyKeyToContinue
 
-var ClearAnyExistingRecords = function (collection, surveys, finalCallback) {
-    collection.deleteMany({}, function (err) {
-        if (err) { console.log("ClearAnyExistingRecords: " + err); db.close(); return; }
-        
-        InsertRecords(collection, surveys, finalCallback);
-    });
+var ClearAnyExistingRecords = function (collection, surveys, callback) {
+    return function () {
+        collection.deleteMany({}, function (err) {
+            if (err) { console.log("ClearAnyExistingRecords: " + err); db.close(); return; }
+            
+            callback();
+        });
+    }
 }
 
-var InsertRecords = function (collection, surveys, finalCallback) {
-    collection.insertMany(surveys, function (err) {
-        if (err) { console.log("InsertRecords: " + err); db.close(); return; }
-        
-        RetrieveTheSavedRecords(collection, finalCallback);
-    });
+var InsertRecords = function (collection, surveys, callback) {
+    return function () {
+        collection.insertMany(surveys, function (err) {
+            if (err) { console.log("InsertRecords: " + err); db.close(); return; }
+            
+            callback();
+        });
+    }
 }
 
-var RetrieveTheSavedRecords = function (collection, finalCallback) {
-
-    collection.find().toArray(function (err, results) {
-        if (err) { console.log("RetrieveTheSavedRecords: " + err); db.close(); return; }
-
-        WriteOutTheRecords(results, finalCallback);
-    });
+var RetrieveTheSavedRecords = function (collection, callback) {
+    return function () {
+        collection.find().toArray(function (err, results) {
+            if (err) { console.log("RetrieveTheSavedRecords: " + err); db.close(); return; }
+            
+            WriteOutTheRecords(results);
+            
+            callback();
+        });
+    }
 }
 
 
-var WriteOutTheRecords = function (results, finalCallback) {
+var WriteOutTheRecords = function (results) {
     
     results.forEach(function (x) {
         console.log(x);
     });
-    
-    finalCallback();
 }
 
 var CloseTheDatabase = function (db) {
