@@ -21,7 +21,7 @@ client.connect(url, function (err, db) {
     startTheProcess();
 });
 
-require('paktc'); // PressAnyKeyToContinue
+//require('paktc'); // PressAnyKeyToContinue
 
 var ClearAnyExistingRecords = function (collection, surveys, callback) {
     return function () {

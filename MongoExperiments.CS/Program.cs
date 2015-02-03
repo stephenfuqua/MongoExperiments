@@ -28,7 +28,7 @@ namespace MongoExperiments.CS
                 HandleAggregateException(aggregate);
             }
 
-            PressAnyKeyToContinue();
+            //PressAnyKeyToContinue();
         }
 
         private static void HandleAggregateException(AggregateException aggregate)
