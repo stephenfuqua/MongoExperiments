@@ -32,8 +32,10 @@
   <ItemGroup>
     <Compile Include="app.js" />
     <Compile Include="InitialData.js" />
+    <Compile Include="repositoryBase.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="surveyRepository.js" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
 </Project>
