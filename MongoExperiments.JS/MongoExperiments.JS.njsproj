@@ -33,6 +33,7 @@
     <Compile Include="app.js" />
     <Compile Include="InitialData.js" />
     <Compile Include="repositoryBase.js" />
+    <Compile Include="sfUtil.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Content Include="surveyRepository.js" />

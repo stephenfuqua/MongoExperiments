@@ -1,4 +1,4 @@
-﻿var util = require('util');
+﻿var string = require('./sfUtil.js').string;
 
 RepositoryBase = function (db, collectionName) {
 	db = db;
@@ -47,7 +47,7 @@ RepositoryBase = function (db, collectionName) {
 	}
 	
 	this.toString = function () {
-		return util.format("I am a repository for accessing the %s table", collectionName);
+		return string.Format("I am a repository for accessing the {0} table", collectionName);
 	}
 }
 
